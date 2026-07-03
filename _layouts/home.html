@@ -45,7 +45,53 @@ layout: default
     {% assign posts = posts | push: all_normal[i] %}
   {% endfor %}
 {% endif %}
+<div class="home-intro card mb-4">
+  <div class="card-body">
+    <h2>👋 Welcome</h2>
+    <p>
+      FPGA Development Notes
+    </p>
+    <p class="text-muted mb-0">
+      FPGA 개발 과정과 문제 해결 내용을 기록하는 블로그입니다.
+    </p>
+  </div>
+</div>
 
+<div class="category-grid mb-4">
+
+  {% assign category_list = "Networking,Memory,Interface,Etc" | split: "," %}
+
+  {% for category in category_list %}
+
+    {% assign count = 0 %}
+
+    {% for post in site.posts %}
+      {% if post.categories contains category %}
+        {% assign count = count | plus: 1 %}
+      {% endif %}
+    {% endfor %}
+
+    <div class="category-card">
+
+      <div class="category-icon">
+        {% case category %}
+          {% when "Networking" %}🌐
+          {% when "Memory" %}💾
+          {% when "Interface" %}🔗
+          {% when "Etc" %}📝
+        {% endcase %}
+      </div>
+
+      <div class="category-info">
+        <h3>{{ category }}</h3>
+        <span>{{ count }} Posts</span>
+      </div>
+
+    </div>
+
+  {% endfor %}
+
+</div>
 <div id="post-list" class="flex-grow-1 px-xl-1">
   {% for post in posts %}
     <article class="card-wrapper card">
