@@ -47,51 +47,6 @@ layout: default
   {% endfor %}
 {% endif %}
 
-<div class="category-grid">
-
-  {% assign category_names = "FPGA,Ethernet,DDR,AXI,Vivado,Linux" | split: "," %}
-
-  {% for category in category_names %}
-
-    {% assign count = 0 %}
-
-    {% for post in site.posts %}
-      {% if post.categories contains category %}
-        {% assign count = count | plus: 1 %}
-      {% endif %}
-    {% endfor %}
-
-    <a href="/categories/{{ category | slugify }}/" class="category-card">
-
-      <div class="category-icon">
-
-        {% case category %}
-          {% when "FPGA" %}📦
-          {% when "Ethernet" %}🌐
-          {% when "DDR" %}💾
-          {% when "AXI" %}🔗
-          {% when "Vivado" %}🛠
-          {% when "Linux" %}🐧
-        {% endcase %}
-
-      </div>
-
-      <div class="category-title">
-        {{ category }}
-      </div>
-
-      <div class="category-count">
-
-        글 {{ count }}개
-
-      </div>
-
-    </a>
-
-  {% endfor %}
-
-</div>
-
 <div id="post-list" class="flex-grow-1 px-xl-1">
   {% for post in posts %}
     <article class="card-wrapper card">
