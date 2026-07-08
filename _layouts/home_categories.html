@@ -1,0 +1,75 @@
+<div class="card mb-4">
+
+<div class="card-header">
+
+📂 Explore
+
+</div>
+
+<div class="card-body">
+
+{% assign category_list="Networking,Memory,Interface,Etc"|split:"," %}
+
+<div class="row">
+
+{% for category in category_list %}
+
+{% assign count=0 %}
+
+{% for post in site.posts %}
+
+{% if post.categories contains category %}
+
+{% assign count=count|plus:1 %}
+
+{% endif %}
+
+{% endfor %}
+
+<div class="col-md-6 mb-3">
+
+<a href="/categories/" class="text-decoration-none">
+
+<div class="card h-100 shadow-sm">
+
+<div class="card-body">
+
+<h5>
+
+{% case category %}
+
+{% when "Networking" %}🌐
+
+{% when "Memory" %}💾
+
+{% when "Interface" %}🔗
+
+{% when "Etc" %}📝
+
+{% endcase %}
+
+{{category}}
+
+</h5>
+
+<p class="text-muted">
+
+{{count}} Posts
+
+</p>
+
+</div>
+
+</div>
+
+</a>
+
+</div>
+
+{% endfor %}
+
+</div>
+
+</div>
+
+</div>
