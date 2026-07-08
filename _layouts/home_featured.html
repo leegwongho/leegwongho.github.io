@@ -1,0 +1,49 @@
+<div class="card mb-4">
+
+<div class="card-header">
+
+⭐ Featured Posts
+
+</div>
+
+<div class="card-body">
+
+{% assign featured_posts=site.posts|where:"featured",true|sort:"featured_order" %}
+
+{% for post in featured_posts %}
+
+<a href="{{post.url | relative_url}}" class="text-decoration-none">
+
+<div class="card mb-3">
+
+<div class="card-body">
+
+<h4>
+
+{{post.title}}
+
+</h4>
+
+<p class="text-muted">
+
+{{post.description}}
+
+</p>
+
+<small>
+
+{{post.categories | join:" · "}}
+
+</small>
+
+</div>
+
+</div>
+
+</a>
+
+{% endfor %}
+
+</div>
+
+</div>
