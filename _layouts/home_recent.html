@@ -1,0 +1,33 @@
+<div class="card">
+
+<div class="card-header">
+
+📰 Recent Posts
+
+</div>
+
+<ul class="list-group list-group-flush">
+
+{% for post in include.posts %}
+
+<li class="list-group-item">
+
+<a href="{{post.url | relative_url}}">
+
+{{post.title}}
+
+</a>
+
+<span class="float-end text-muted">
+
+{% include datetime.html date=post.date lang=lang %}
+
+</span>
+
+</li>
+
+{% endfor %}
+
+</ul>
+
+</div>
