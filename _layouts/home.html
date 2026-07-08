@@ -45,52 +45,87 @@ layout: default
     {% assign posts = posts | push: all_normal[i] %}
   {% endfor %}
 {% endif %}
-<div class="home-intro card mb-4">
+<div class="card mb-4">
   <div class="card-body">
     <h2>👋 Welcome</h2>
-    <p>
-      FPGA Development Notes
+
+    <p class="mb-2">
+      <strong>FPGA Development Notes</strong>
     </p>
+
     <p class="text-muted mb-0">
       FPGA 개발 과정과 문제 해결 내용을 기록하는 블로그입니다.
     </p>
   </div>
 </div>
 
-<div class="category-grid mb-4">
+<div class="card mb-4">
+  <div class="card-header">
+    <strong>📂 Explore</strong>
+  </div>
 
-  {% assign category_list = "Networking,Memory,Interface,Etc" | split: "," %}
+  <div class="card-body">
 
-  {% for category in category_list %}
+    {% assign category_list = "Networking,Memory,Interface,Etc" | split: "," %}
 
-    {% assign count = 0 %}
+    <div class="row">
 
-    {% for post in site.posts %}
-      {% if post.categories contains category %}
-        {% assign count = count | plus: 1 %}
-      {% endif %}
+    {% for category in category_list %}
+
+      {% assign count = 0 %}
+
+      {% for post in site.posts %}
+        {% if post.categories contains category %}
+          {% assign count = count | plus: 1 %}
+        {% endif %}
+      {% endfor %}
+
+      <div class="col-md-6 mb-3">
+
+        <a href="/categories/" class="text-decoration-none">
+
+          <div class="card h-100">
+
+            <div class="card-body">
+
+              <h5>
+
+              {% case category %}
+                {% when "Networking" %}
+                  🌐
+                {% when "Memory" %}
+                  💾
+                {% when "Interface" %}
+                  🔗
+                {% when "Etc" %}
+                  📝
+              {% endcase %}
+
+              {{ category }}
+
+              </h5>
+
+              <p class="text-muted mb-0">
+
+                {{ count }} Posts
+
+              </p>
+
+            </div>
+
+          </div>
+
+        </a>
+
+      </div>
+
     {% endfor %}
-
-    <div class="category-card">
-
-      <div class="category-icon">
-        {% case category %}
-          {% when "Networking" %}🌐
-          {% when "Memory" %}💾
-          {% when "Interface" %}🔗
-          {% when "Etc" %}📝
-        {% endcase %}
-      </div>
-
-      <div class="category-info">
-        <h3>{{ category }}</h3>
-        <span>{{ count }} Posts</span>
-      </div>
 
     </div>
 
-  {% endfor %}
+  </div>
 
+</div>
 </div>
 <div id="post-list" class="flex-grow-1 px-xl-1">
   {% for post in posts %}
