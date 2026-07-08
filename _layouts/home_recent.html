@@ -1,33 +1,40 @@
 <div class="card">
 
-<div class="card-header">
+  <div class="card-header">
 
-📰 Recent Posts
+    📰 Recent Posts
 
-</div>
+  </div>
 
-<ul class="list-group list-group-flush">
+  <div class="list-group list-group-flush">
 
-{% for post in include.posts %}
+    {% for post in include.posts %}
 
-<li class="list-group-item">
+    <a href="{{ post.url | relative_url }}"
+       class="list-group-item list-group-item-action">
 
-<a href="{{post.url | relative_url}}">
+      <strong>
 
-{{post.title}}
+        📄 {{ post.title }}
 
-</a>
+      </strong>
 
-<span class="float-end text-muted">
+      <br>
 
-{% include datetime.html date=post.date lang=lang %}
+      <small class="text-muted">
 
-</span>
+        {{ post.categories | join: " · " }}
 
-</li>
+        ·
 
-{% endfor %}
+        {% include datetime.html date=post.date lang=lang %}
 
-</ul>
+      </small>
+
+    </a>
+
+    {% endfor %}
+
+  </div>
 
 </div>
