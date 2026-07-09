@@ -1,6 +1,6 @@
 ---
 title: "Project 01 - 001. Project Introduction"
-date: 2026-07-09 20:00:00 +0900
+date: 2026-07-08 20:00:00 +0900
 
 categories:
   - Networking
