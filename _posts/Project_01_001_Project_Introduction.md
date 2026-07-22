@@ -12,7 +12,7 @@ tags:
   - FPGA
   - VCU128
 
-pin: true
+pin: false
 
 toc: true
 
