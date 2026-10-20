@@ -1,0 +1,389 @@
+diff --git a/_config.yml b/_config.yml
+index 854ab5b..9893fad 100644
+--- a/_config.yml
++++ b/_config.yml
+@@ -9,7 +9,7 @@ theme: jekyll-theme-chirpy
+ lang: ko-KR
+ 
+ # Change to your timezone › https://zones.arilyn.cc
+-timezone:
++timezone: Asia/Seoul
+ 
+ # jekyll-seo-tag settings › https://github.com/jekyll/jekyll-seo-tag/blob/master/docs/usage.md
+ # ↓ --------------------------
+@@ -23,10 +23,10 @@ description: >- # used by seo meta and the atom feed
+ 
+ # Fill in the protocol & hostname for your site.
+ # E.g. 'https://username.github.io', note that it does not end with a '/'.
+-url: ""
++url: "https://leegwongho.github.io"
+ 
+ github:
+-  username: github_username # change to your GitHub username
++  username: leegwongho # GitHub username
+ 
+ twitter:
+   username: twitter_username # change to your Twitter username
+@@ -40,7 +40,7 @@ social:
+   links:
+     # The first element serves as the copyright owner's link
+     - https://twitter.com/username # change to your Twitter homepage
+-    - https://github.com/username # change to your GitHub homepage
++    - https://github.com/leegwongho # change to your GitHub homepage
+     # Uncomment below to add more social links
+     # - https://www.facebook.com/username
+     # - https://www.linkedin.com/in/username
+diff --git a/_data/contact.yml b/_data/contact.yml
+index ed40acb..74a68a7 100644
+--- a/_data/contact.yml
++++ b/_data/contact.yml
+@@ -3,13 +3,6 @@
+ - type: github
+   icon: "fab fa-github"
+ 
+-- type: twitter
+-  icon: "fa-brands fa-x-twitter"
+-
+-- type: email
+-  icon: "fas fa-envelope"
+-  noblank: true # open link in current tab
+-
+ - type: rss
+   icon: "fas fa-rss"
+   noblank: true
+diff --git a/_includes/home_categories.html b/_includes/home_categories.html
+index 85f57fa..3430e73 100644
+--- a/_includes/home_categories.html
++++ b/_includes/home_categories.html
+@@ -1,75 +1,37 @@
+ <div class="card mb-4">
+-
+-<div class="card-header">
+-
+-Explore
+-
+-</div>
+-
+-<div class="card-body">
+-
+-{% assign category_list="Networking,Memory,Interface,Etc"|split:"," %}
+-
+-<div class="row">
+-
+-{% for category in category_list %}
+-
+-{% assign count=0 %}
+-
+-{% for post in site.posts %}
+-
+-{% if post.categories contains category %}
+-
+-{% assign count=count|plus:1 %}
+-
+-{% endif %}
+-
+-{% endfor %}
+-
+-<div class="col-md-6 mb-3">
+-
+-<a href="{{ '/categories/' | append: category | downcase | append: '/' | relative_url }}">
+-
+-<div class="card h-100 shadow-sm">
+-
+-<div class="card-body">
+-
+-<h5>
+-
+-{% case category %}
+-
+-{% when "Networking" %}
+-
+-{% when "Memory" %}
+-
+-{% when "Interface" %}
+-
+-{% when "Etc" %}
+-
+-{% endcase %}
+-
+-{{category}}
+-
+-</h5>
+-
+-<p class="text-muted">
+-
+-{{count}} Posts
+-
+-</p>
+-
+-</div>
+-
+-</div>
+-
+-</a>
+-
+-</div>
+-
+-{% endfor %}
+-
+-</div>
+-
+-</div>
+-
++  <div class="card-header">Explore</div>
++
++  <div class="card-body">
++    {% assign category_list = "Networking,Memory,Interface,ETC" | split: "," %}
++
++    <div class="row">
++      {% for category in category_list %}
++        {% assign count = 0 %}
++        {% for post in site.posts %}
++          {% if post.categories contains category %}
++            {% assign count = count | plus: 1 %}
++          {% endif %}
++        {% endfor %}
++
++        <div class="col-md-6 mb-3">
++          {% if count > 0 %}
++            <a href="{{ '/categories/' | append: category | downcase | append: '/' | relative_url }}">
++          {% endif %}
++
++          <div class="card h-100 shadow-sm">
++            <div class="card-body">
++              <h5>{{ category }}</h5>
++              <p class="text-muted mb-0">
++                {% if count > 0 %}{{ count }} Posts{% else %}Coming soon{% endif %}
++              </p>
++            </div>
++          </div>
++
++          {% if count > 0 %}
++            </a>
++          {% endif %}
++        </div>
++      {% endfor %}
++    </div>
++  </div>
+ </div>
+diff --git a/_posts/2026-06-30-post.md b/_posts/2026-06-30-post.md
+deleted file mode 100644
+index 27095a0..0000000
+--- a/_posts/2026-06-30-post.md
++++ /dev/null
+@@ -1,52 +0,0 @@
+----
+-title: "테스트 글 ddr"
+-date: 2026-06-30 20:00:00 +0900
+-
+-categories:
+-  - Memory
+-
+-tags:
+-  - DDR4
+-
+-pin: false
+-
+-toc: true
+-
+-comments: true
+----
+-
+-# 개요
+-
+-이 글에서 다룰 내용을 간단히 설명합니다.
+-
+----
+-
+-# 문제 상황
+-
+-어떤 상황에서 문제가 발생했는지 작성합니다.
+-
+----
+-
+-# 원인 분석
+-
+-원인을 분석한 내용을 작성합니다.
+-
+----
+-
+-# 해결 방법
+-
+-실제 해결 과정을 작성합니다.
+-
+----
+-
+-# 결과
+-
+-최종 결과와 확인 방법을 작성합니다.
+-
+----
+-
+-# 참고 자료
+-
+-- PG165
+-- UG576
+-- 기타 문서
+diff --git a/_posts/2026-06-30-post_etc.md b/_posts/2026-06-30-post_etc.md
+deleted file mode 100644
+index b153bd1..0000000
+--- a/_posts/2026-06-30-post_etc.md
++++ /dev/null
+@@ -1,52 +0,0 @@
+----
+-title: "테스트 글 기타"
+-date: 2026-06-30 20:00:00 +0900
+-
+-categories:
+-  - ETC
+-
+-tags:
+-  - etc
+-
+-pin: false
+-
+-toc: true
+-
+-comments: true
+----
+-
+-# 개요
+-
+-이 글에서 다룰 내용을 간단히 설명합니다.
+-
+----
+-
+-# 문제 상황
+-
+-어떤 상황에서 문제가 발생했는지 작성합니다.
+-
+----
+-
+-# 원인 분석
+-
+-원인을 분석한 내용을 작성합니다.
+-
+----
+-
+-# 해결 방법
+-
+-실제 해결 과정을 작성합니다.
+-
+----
+-
+-# 결과
+-
+-최종 결과와 확인 방법을 작성합니다.
+-
+----
+-
+-# 참고 자료
+-
+-- PG165
+-- UG576
+-- 기타 문서
+diff --git a/_posts/2026-06-30-post_interface.md b/_posts/2026-06-30-post_interface.md
+deleted file mode 100644
+index e1b9476..0000000
+--- a/_posts/2026-06-30-post_interface.md
++++ /dev/null
+@@ -1,52 +0,0 @@
+----
+-title: "테스트 글 axi"
+-date: 2026-06-30 20:00:00 +0900
+-
+-categories:
+-  - Interface
+-
+-tags:
+-  - AXI
+-
+-pin: false
+-
+-toc: true
+-
+-comments: true
+----
+-
+-# 개요
+-
+-이 글에서 다룰 내용을 간단히 설명합니다.
+-
+----
+-
+-# 문제 상황
+-
+-어떤 상황에서 문제가 발생했는지 작성합니다.
+-
+----
+-
+-# 원인 분석
+-
+-원인을 분석한 내용을 작성합니다.
+-
+----
+-
+-# 해결 방법
+-
+-실제 해결 과정을 작성합니다.
+-
+----
+-
+-# 결과
+-
+-최종 결과와 확인 방법을 작성합니다.
+-
+----
+-
+-# 참고 자료
+-
+-- PG165
+-- UG576
+-- 기타 문서
+diff --git a/_posts/2026-07-10-post_Project_01_003.md b/_posts/2026-07-10-post_Project_01_003.md
+index 5de98cb..df0dafa 100644
+--- a/_posts/2026-07-10-post_Project_01_003.md
++++ b/_posts/2026-07-10-post_Project_01_003.md
+@@ -1,5 +1,5 @@
+ ---
+-title: "Project 01-003: What is 100G Ethernet?"
++title: "Project 01 - 003: What is 100G Ethernet?"
+ date: 2026-07-10 20:00:00 +0900
+ 
+ categories:
+@@ -209,7 +209,7 @@ Application
+ 
+ # References
+ 
+-- AMD PG165 – UltraScale+ Integrated 100G Ethernet Subsystem
++- AMD PG203 – UltraScale+ Devices Integrated 100G Ethernet Subsystem
+ - AMD UG578 – UltraScale+ GTY Transceivers
+ - IEEE Std 802.3ba – 40Gb/s and 100Gb/s Ethernet
+ - IEEE Std 802.3cd – 50Gb/s, 100Gb/s and 200Gb/s Ethernet
+diff --git a/index.md b/index.md
+deleted file mode 100644
+index 2e33433..0000000
+--- a/index.md
++++ /dev/null
+@@ -1,21 +0,0 @@
+----
+-layout: home
+-title: Home
+----
+-
+-# FPGA Development Blog
+-
+-안녕하세요.
+-
+-FPGA, Ethernet, DDR, AXI 및 관련 개발 과정과 문제 해결 내용을 기록하는 블로그입니다.
+-
+-## 주요 주제
+-
+-- FPGA
+-- Ethernet
+-- DDR
+-- AXI
+-- Vivado
+-- Linux
+-
+-최신 글은 아래에서 확인할 수 있습니다.
