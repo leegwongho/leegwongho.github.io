@@ -4,6 +4,7 @@ date: 2026-10-22 15:20:00 +0900
 
 categories:
   - Interface
+  - PCIe Study
 
 tags:
   - RSS
