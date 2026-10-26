@@ -13,9 +13,9 @@
 - category: "OpenNIC Study"
   field: Networking
   title: "OpenNIC 구조 분석"
-  desc: "공개 저장소를 기준으로 Shell, 데이터 경로, 클럭 도메인, 드라이버를 분석"
+  desc: "오픈 소스 기준으로 Shell, 데이터 경로, 클럭 도메인, 드라이버를 분석"
 
 - category: "Project 02"
   field: Networking
-  title: "고속 데이터 경로 디버깅 원칙"
-  desc: "다른 환경에 적용할 때 쓰는 카운터 배치, 타이밍 리포트 읽기 등 일반 원칙"
+  title: "고속 데이터 경로 디버깅"
+  desc: "다른 환경에 적용할 때 쓰는 카운터 배치, 타이밍 리포트 읽기"
