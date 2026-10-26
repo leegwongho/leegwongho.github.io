@@ -1,0 +1,21 @@
+# 홈과 About 페이지의 시리즈 소개에 쓰이는 목록입니다.
+# category 값은 글 front matter의 두 번째 categories 값과 같아야 합니다.
+- category: "Project 01"
+  field: Networking
+  title: "100G CMAC Bring-up"
+  desc: "VCU128에서 100G Ethernet MAC을 설계하고 계측기와 연동하며 정리한 기록"
+
+- category: "PCIe Study"
+  field: Interface
+  title: "PCIe / QDMA 스터디"
+  desc: "PCIe 구조, TLP, QDMA 큐 구조, 멀티 큐와 RSS를 이론 중심으로 정리"
+
+- category: "OpenNIC Study"
+  field: Networking
+  title: "OpenNIC 구조 분석"
+  desc: "공개 저장소를 기준으로 Shell, 데이터 경로, 클럭 도메인, 드라이버를 분석"
+
+- category: "Project 02"
+  field: Networking
+  title: "고속 데이터 경로 디버깅 원칙"
+  desc: "다른 환경에 적용할 때 쓰는 카운터 배치, 타이밍 리포트 읽기 등 일반 원칙"
