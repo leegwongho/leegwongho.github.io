@@ -1,0 +1,18 @@
+<div class="list-group mb-3">
+{%- for s in site.data.series -%}
+{%- assign target = site.posts | where_exp: 'p', 'p.portfolio_of contains s.category' | first -%}
+{%- if target -%}
+<a href="{{ target.url | relative_url }}" class="list-group-item list-group-item-action">
+{%- else -%}
+<div class="list-group-item">
+{%- endif -%}
+<div class="d-flex justify-content-between align-items-start"><strong>{{ s.title }}</strong><small class="text-muted ms-2 text-nowrap">{% if target %}Portfolio →{% else %}Coming soon{% endif %}</small></div>
+<small class="text-muted">{{ s.field }} · {{ s.category }}</small><br>
+<small>{{ s.desc }}</small>
+{%- if target -%}
+</a>
+{%- else -%}
+</div>
+{%- endif -%}
+{%- endfor -%}
+</div>
