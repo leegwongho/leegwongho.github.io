@@ -1,0 +1,14 @@
+{%- assign portfolio_posts = site.categories['Portfolio'] -%}
+{%- if portfolio_posts and portfolio_posts.size > 0 -%}
+<h5 class="mt-4">Portfolio</h5>
+<div class="list-group mb-3">
+{%- for p in portfolio_posts -%}
+<a href="{{ p.url | relative_url }}" class="list-group-item list-group-item-action">
+<div class="d-flex justify-content-between align-items-start"><strong>{{ p.title }}</strong><small class="text-muted ms-2 text-nowrap">Portfolio →</small></div>
+{%- if p.description -%}
+<small>{{ p.description }}</small>
+{%- endif -%}
+</a>
+{%- endfor -%}
+</div>
+{%- endif -%}
