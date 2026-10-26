@@ -1,0 +1,20 @@
+<div class="list-group mb-3">
+{%- for s in site.data.series -%}
+{%- assign series_posts = site.categories[s.category] | sort: 'date' -%}
+{%- assign series_count = series_posts | size -%}
+{%- if series_count > 0 -%}
+{%- assign first_post = series_posts | first -%}
+<a href="{{ first_post.url | relative_url }}" class="list-group-item list-group-item-action">
+{%- else -%}
+<div class="list-group-item">
+{%- endif -%}
+<div class="d-flex justify-content-between align-items-start"><strong>{{ s.title }}</strong><small class="text-muted ms-2 text-nowrap">{% if series_count > 0 %}{{ series_count }} Posts{% else %}Coming soon{% endif %}</small></div>
+<small class="text-muted">{{ s.field }} · {{ s.category }}</small><br>
+<small>{{ s.desc }}</small>
+{%- if series_count > 0 -%}
+</a>
+{%- else -%}
+</div>
+{%- endif -%}
+{%- endfor -%}
+</div>
