@@ -1,6 +1,7 @@
 ---
 title: "PCIe / QDMA Study - 003: DMA와 QDMA의 역할"
 date: 2026-10-22 14:20:00 +0900
+last_modified_at: 2026-10-27 14:00:00 +0900
 
 categories:
   - Interface
@@ -72,6 +73,17 @@ DMA는 방향에 따라 이름이 정해져 있습니다. QDMA에서 쓰는 용�
 
 H2C는 읽기라서 Completion을 받아야 하고, C2H는 쓰기라서 Posted로 보낼 수 있습니다.
 
+## H2C가 지연에 더 민감한 이유
+
+C2H는 MWr을 연속으로 내보내기만 하면 되지만, H2C는 **MRd를 보내고 CplD가 돌아올 때까지** 기다려야 합니다. 호스트 메모리까지 왕복하는 시간이 길기 때문에, 요청 하나씩 보내고 기다리면 대역폭이 크게 떨어집니다.
+
+그래서 H2C 대역폭은 **동시에 몇 개의 읽기 요청을 내보낼 수 있는가**에 달려 있습니다.
+
+- 요청마다 **Tag**가 필요하므로, 쓸 수 있는 Tag 수가 미해결 요청 수의 상한이 됩니다(002).
+- 돌아올 Completion을 받을 **수신 버퍼**가 있는 만큼만 요청을 내보낼 수 있습니다(002의 Completion 크레딧).
+
+대략 `처리량 ≈ 미해결 요청 바이트 수 ÷ 왕복 지연`으로 생각할 수 있어서, 왕복 지연이 길수록 더 많은 요청을 동시에 띄워 두어야 합니다.
+
 ---
 
 # 왜 QDMA인가
@@ -96,7 +108,7 @@ PG302는 **큐(Queue)** 를 QDMA와 다른 DMA 제품을 구분하는 가장 큰
 
 # QDMA 개요
 
-QDMA는 **UltraScale+ Integrated Block for PCI Express**(PG213) 위에 DMA와 브리지 기능을 얹은 서브시스템입니다.
+QDMA는 **UltraScale+ Integrated Block for PCI Express**(PG213) 위에 DMA와 브리지 기능을 얹은 서브시스템입니다. OpenNIC에서는 QDMA의 사용자 쪽 AXI4-Stream이 **512비트 @ 250 MHz**로, 001에서 계산한 Gen3 x16 대역폭과 맞춰져 있습니다.
 
 ```
   Host (드라이버)
@@ -147,7 +159,7 @@ QDMA는 **큐마다** 사용자 로직과 연결되는 방식을 AXI4 Memory Map
 
 > Descriptor 크기는 PG302의 목차(AXI Memory Mapped Descriptor 32B, H2C Stream Descriptor 16B, C2H Stream Descriptor 8B)를 기준으로 정리했습니다.
 
-Ethernet의 CMAC이 AXI4-Stream으로 프레임을 내보낸다는 것(005 글)을 떠올리면, **NIC 형태의 시스템은 Stream 모드**가 자연스럽습니다. CMAC에서 받은 프레임이 AXI4-Stream으로 QDMA에 들어가고, QDMA가 PCIe로 호스트 메모리에 씁니다(C2H).
+Ethernet의 CMAC이 AXI4-Stream으로 프레임을 내보낸다는 것(Project 01 - 005)을 떠올리면, **NIC 형태의 시스템은 Stream 모드**가 자연스럽습니다. CMAC에서 받은 프레임이 AXI4-Stream으로 QDMA에 들어가고, QDMA가 PCIe로 호스트 메모리에 씁니다(C2H).
 
 ```
 네트워크 → CMAC → AXI4-Stream → QDMA (C2H Stream) → PCIe → 호스트 메모리
@@ -177,6 +189,7 @@ QDMA는 하드웨어만으로 동작하지 않고 **호스트 드라이버와 �
 
 - PIO는 MRd를 반복하기 때문에 지연과 CPU 점유 문제가 있고, DMA는 장치가 Bus Master로 직접 옮겨 **CPU를 해방**한다.
 - H2C는 호스트 메모리를 읽고(MRd), C2H는 호스트 메모리에 쓴다(MWr).
+- H2C는 왕복 지연 때문에 **동시에 띄울 수 있는 읽기 요청 수**(Tag, 수신 버퍼)가 대역폭을 좌우한다.
 - QDMA의 핵심은 **큐**다. 큐마다 인터페이스(MM/Stream)와 완료 방식(인터럽트/폴링)을 개별 설정하고, PF/VF에 할당할 수 있다.
 - **패킷 중심의 NIC 구조에는 AXI4-Stream 모드**가 자연스럽다.
 - QDMA는 **하드웨어와 드라이버가 한 쌍**으로 동작한다.

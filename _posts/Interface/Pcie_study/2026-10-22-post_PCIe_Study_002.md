@@ -1,6 +1,7 @@
 ---
 title: "PCIe / QDMA Study - 002: PCIe 패킷(TLP)과 Transaction"
 date: 2026-10-22 14:10:00 +0900
+last_modified_at: 2026-10-27 14:00:00 +0900
 
 categories:
   - Interface
@@ -58,8 +59,8 @@ TLP의 종류는 헤더의 **Fmt**(형식)와 **Type** 필드로 구분합니다
 |-----|------|--------|-----------|
 | **MRd** | Memory Read Request | 요청에는 없음 | **Completion 필요** |
 | **MWr** | Memory Write Request | payload 있음 | **필요 없음** (Posted) |
-| **CfgRd / CfgWr** | Configuration Read / Write | 있음 | 필요 |
-| **IORd / IOWr** | I/O Read / Write (레거시) | 있음 | 필요 |
+| **CfgRd / CfgWr** | Configuration Read / Write | CfgWr만 있음 | 필요 |
+| **IORd / IOWr** | I/O Read / Write (레거시) | IOWr만 있음 | 필요 |
 | **Cpl / CplD** | Completion (데이터 없음 / 있음) | CplD만 있음 | 응답 자체 |
 | **Msg** | Message (인터럽트, 에러 등) | 선택 | 일반적으로 없음 |
 
@@ -123,10 +124,14 @@ Requester ◄── CplD(Tag, 데이터) ──── Completer
 
 한 TLP에 담을 수 있는 데이터 양은 제한이 있습니다.
 
-- **MPS (Max Payload Size)**: 한 TLP의 최대 payload. 128, 256, 512, 1024 B 등. 링크 양단이 지원하는 값 중 협상한 값을 씁니다.
+- **MPS (Max Payload Size)**: 한 TLP의 최대 payload. 128, 256, 512, 1024 B 등.
 - **MRRS (Max Read Request Size)**: 한 번의 읽기 요청으로 요청할 수 있는 최대 크기.
 
+두 값은 링크 트레이닝처럼 **자동으로 협상되는 값이 아니라, BIOS나 OS가 각 장치의 Configuration Space(Device Control 레지스터)에 설정**합니다. MPS는 보통 경로상의 장치들이 지원하는 값 중 가장 작은 값으로 맞춥니다. 실제 값은 `lspci -vv`의 `DevCtl` 줄에서 `MaxPayload`, `MaxReadReq`로 확인할 수 있습니다(005).
+
 예를 들어 MRRS가 크고 MPS가 256 B일 때, 1024 B를 읽으면 **Completion이 여러 개(예: 256 B × 4)로 쪼개져서** 돌아옵니다. 쓰기도 MPS보다 크면 여러 MWr로 나뉩니다.
+
+다만 이것은 단순화한 예입니다. 응답하는 쪽은 **RCB(Read Completion Boundary, 64 B 또는 128 B)** 경계에서도 Completion을 나눌 수 있어서, 실제로는 더 잘게 쪼개져 올 수 있습니다. 요청한 쪽은 **Completion의 개수나 크기를 가정하지 말고** Byte Count와 Lower Address로 조립해야 합니다.
 
 작은 payload는 헤더 오버헤드 비율이 커집니다. 예를 들어 4DW 헤더(16 B)에 payload 64 B면 헤더만 20% 수준이라, 001에서 말한 "실제 처리량이 이론보다 낮다"가 여기서 나타납니다.
 
@@ -189,9 +194,29 @@ Endpoint도 **Requester**가 될 수 있습니다. 이를 **Bus Master** 기능�
 
 크레딧이 소진되면 송신이 멈춥니다. 이 흐름 제어는 Data Link Layer가 주고받는 **DLLP(Update FC)** 로 갱신됩니다.
 
+한 가지 예외가 있습니다. Endpoint는 보통 **Completion 크레딧을 무한대로 광고**합니다. 자기가 보낸 읽기 요청의 응답은 반드시 받아야 하기 때문입니다. 그래서 읽기를 요청하는 쪽(DMA 엔진)은 **돌아올 Completion을 받을 버퍼가 있는 만큼만** 읽기 요청을 내보내야 합니다. 이것이 003에서 다루는 H2C 성능과 연결됩니다.
+
 ## ACK/NAK
 
 각 TLP에는 **시퀀스 번호와 LCRC**가 붙습니다. 수신 측이 오류 없이 받으면 **ACK DLLP**를, 오류가 있으면 **NAK**를 보내고, 송신 측은 **재전송 버퍼**의 TLP를 다시 보냅니다. 그래서 사용자 로직은 링크 오류를 신경 쓰지 않아도 됩니다.
+
+---
+
+# 순서 규칙 (Ordering)
+
+DMA가 안전하게 동작하는 데 꼭 필요한 규칙이 하나 더 있습니다. PCIe는 TLP의 종류에 따라 **추월해도 되는지**를 정해 둡니다. 기본 규칙에서 중요한 것은 다음 두 가지입니다.
+
+- **Posted Write끼리는 순서가 유지**됩니다. 먼저 보낸 MWr이 나중에 보낸 MWr보다 먼저 메모리에 반영됩니다.
+- **Completion은 앞서 보낸 Posted Write를 추월하지 않습니다.**
+
+이 규칙 덕분에 다음이 성립합니다.
+
+```
+장치: MWr(패킷 데이터) → MWr(완료 정보 / CMPT) → MWr(MSI-X 인터럽트)
+호스트: 인터럽트나 완료 정보를 본 시점에는, 데이터도 이미 메모리에 도착해 있다
+```
+
+003의 C2H, 004의 CMPT 링이 "완료 정보를 보면 데이터를 읽어도 된다"는 전제로 동작하는 것이 바로 이 규칙 때문입니다. TLP에 **Relaxed Ordering** 속성을 켜면 이 보장이 약해지므로(성능을 위해 추월을 허용), 완료 정보를 쓰는 TLP에는 쓰지 않는 것이 일반적입니다.
 
 ---
 
@@ -207,6 +232,7 @@ Endpoint도 **Requester**가 될 수 있습니다. 이를 **Bus Master** 기능�
 | 호스트가 FPGA 레지스터에 접근하는 방법 | BAR 주소로 MRd/MWr TLP (MMIO) |
 | FPGA가 호스트 메모리에 접근하는 방법 | Bus Master로 호스트 주소에 MRd/MWr TLP (DMA) |
 | 신뢰성과 흐름 제어 | Data Link Layer의 ACK/NAK, 크레딧(DLLP) |
+| 데이터와 완료 정보의 순서 | Posted Write끼리 순서 유지 → 완료를 보면 데이터도 도착 |
 
 ---
 
@@ -217,6 +243,8 @@ Endpoint도 **Requester**가 될 수 있습니다. 이를 **Bus Master** 기능�
 - **Tag** 로 요청과 응답을 짝지으며, 큰 읽기는 MPS 단위의 여러 Completion으로 쪼개져 돌아온다.
 - 호스트가 FPGA 레지스터를 읽고 쓰는 것은 **BAR 주소로 가는 MMIO TLP**이다.
 - 반대 방향에서 FPGA가 **Bus Master**로 호스트 메모리에 TLP를 보내는 것이 DMA이다.
+- MPS와 MRRS는 협상이 아니라 **소프트웨어가 설정**하고, Completion은 RCB 경계에서도 나뉠 수 있다.
+- **Posted Write끼리 순서가 유지**되므로, 데이터를 쓴 뒤 완료 정보를 쓰면 호스트는 완료를 본 시점에 데이터를 믿고 읽을 수 있다.
 - 크레딧 흐름 제어와 ACK/NAK는 하위 계층이 처리해 준다.
 
 ---
